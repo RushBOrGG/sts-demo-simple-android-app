@@ -53,7 +53,7 @@ public class DistributeTokenServlet extends HttpServlet {
         final FederationToken federationToken = stsService.getFederationToken(
                 accessKeyId,
                 accessKeySecret,
-                userName, getPolicy(userId, bucketName), ONE_HOUR
+                "anyone", getPolicy(userId, userName, bucketName), ONE_HOUR
         );
 
         resp.setHeader("Content-type", "application/json");
@@ -61,10 +61,27 @@ public class DistributeTokenServlet extends HttpServlet {
         writer.write(JSON.toJSONString(federationToken));
     }
 
-    String getPolicy(String userId, String bucketName) {
-        return String.format("{\n" +
+    String getPolicy(String userId, String userName, String bucketName) {
+        return String.format(
+                "{\n" +
                 "    \"Version\": \"1\", \n" +
                 "    \"Statement\": [\n" +
+                // 限制只能执行指定prefix的罗列Bucket操作
+                "        {\n" +
+                "            \"Action\": [\n" +
+                "                \"oss:ListObjects\"\n" +
+                "            ], \n" +
+                "            \"Resource\": [\n" +
+                "                \"acs:oss:*:*:%s\"\n" +
+                "            ], \n" +
+                "            \"Effect\": \"Allow\", \n" +
+                "            \"Condition\": { \n" +
+                "                \"StringLike\": { \n" +
+                "                    \"oss:Prefix\": \"%s/*\"\n" +
+                "                }\n" +
+                "            }\n" +
+                "        }, \n" +
+                // 限制只能对Bucket指定目录下的文件进行操作
                 "        {\n" +
                 "            \"Action\": [\n" +
                 "                \"oss:PutObject\", \n" +
@@ -72,11 +89,11 @@ public class DistributeTokenServlet extends HttpServlet {
                 "                \"oss:DeleteObject\"\n" +
                 "            ], \n" +
                 "            \"Resource\": [\n" +
-                "                \"acs:oss:*:%s:%s/*\"\n" +
+                "                \"acs:oss:*:*:%s/*\"\n" +
                 "            ], \n" +
                 "            \"Effect\": \"Allow\"\n" +
                 "        }\n" +
                 "    ]\n" +
-                "}", userId, bucketName);
+                "}", bucketName, userName, bucketName);
     }
 }
