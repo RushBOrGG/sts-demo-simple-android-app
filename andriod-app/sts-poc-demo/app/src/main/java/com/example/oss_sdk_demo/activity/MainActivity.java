@@ -32,6 +32,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		initConfig();
+
 		Button buttonA = (Button) findViewById(R.id.button_a_login);
 		buttonA.setOnClickListener(this);
 		Button buttonB = (Button) findViewById(R.id.button_b_login);
@@ -40,22 +42,24 @@ public class MainActivity extends Activity implements OnClickListener {
 		// 初始化OSSService
 		AppUtil.ossService = OSSServiceProvider.getService();
 		AppUtil.ossService.setApplicationContext(this.getApplicationContext());
-		AppUtil.ossService.setGlobalDefaultHostId("oss-cn-beijing.aliyuncs.com");
+		AppUtil.ossService.setGlobalDefaultHostId(AppUtil.endPoint);
 
 		// 打开调试log
 		OSSLog.enableLog(true);
 	}
 
 	// 从Manifest.xml的Meta-data中获得加签服务器地址
-	private String getHostAddressFromMetaData() {
+	private void initConfig() {
 	    try {
             ApplicationInfo appInfo = this.getApplicationContext().getPackageManager().
                     getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-            return appInfo.metaData.getString("ServerAddress");
+            AppUtil.serverAddress = appInfo.metaData.getString("ServerAddress");
+			AppUtil.bucketName = appInfo.metaData.getString("BucketName");
+			AppUtil.endPoint = appInfo.metaData.getString("EndPoint");
         } catch (NameNotFoundException e) {
             e.printStackTrace();
+			finish();
         }
-	    return "";
 	}
 
 	@Override
@@ -72,12 +76,11 @@ public class MainActivity extends Activity implements OnClickListener {
 		default:
 			break;
 		}
-		final String serverAddress = getHostAddressFromMetaData();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				// 为指定的用户拿取服务其授权需求的FederationToken
-				FederationToken token = FederationTokenGetter.getToken(serverAddress, userId);
+				FederationToken token = FederationTokenGetter.getToken(AppUtil.serverAddress, userId);
 				if (token == null) {
 					runOnUiThread(new Runnable() {
 						@Override

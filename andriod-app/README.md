@@ -8,9 +8,13 @@ andriod-app
 
 ```
 <meta-data android:name="ServerAddress" android:value="10.1.29.208:8080"></meta-data>
+<meta-data android:name="EndPoint" android:value="oss-cn-beijing.aliyuncs.com"></meta-data>
+<meta-data android:name="BucketName" android:value="sts-poc-demo"></meta-data>
 ```
 
-把android:value中填入server端ip:port，然后在./sts-poc-demo目录下执行:
+把各android:value中依次填入server端ip:port/Region域名/你的BucketName，
+
+然后在./sts-poc-demo目录下执行:
 
 ```
 gradle build

@@ -53,7 +53,7 @@ public class FileExplorerActivity extends Activity implements OnClickListener, O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_explorer_activity);
 
-        bucket = AppUtil.ossService.getOssBucket("sts-poc-demo");
+        bucket = AppUtil.ossService.getOssBucket(AppUtil.bucketName);
 
         File file = new File(DEFAULT_FILE_SAVE_PATH);
         if (!file.exists()) {
