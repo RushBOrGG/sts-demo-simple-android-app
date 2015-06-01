@@ -65,3 +65,10 @@ gradle build
 ```
 
 执行成功后即可在 `./sts-poc-demo/app/build/outputs/apk/` 目录下找到打包成功的`apk`文件，安装到手机即可进行测试。
+
+相关资料
+--------------------
+
+- OSS移动SDK文档 **TODO**
+- [OSS Policy文档](http://docs.aliyun.com/#/pub/oss/api-reference/access-control&granting-permissions)
+- [STS文档](http://docs.aliyun.com/#/pub/ram)

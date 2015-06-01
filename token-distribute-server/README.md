@@ -50,6 +50,5 @@ mvn clean install && mvn jetty:run
 相关资料
 --------------------
 
-- `STS`文档 **TODO**
-- `Policy`文档 **TODO**
-- `OSS`移动`SDK`文档 **TODO**
+- [STS文档](http://docs.aliyun.com/#/pub/ram)
+- [OSS Policy文档](http://docs.aliyun.com/#/pub/oss/api-reference/access-control&granting-permissions)
