@@ -53,7 +53,7 @@ public class StsServiceImpl implements StsService {
             request.setProtocol(protocolType);
 
             request.setStsVersion(STS_API_VERSION);
-            request.setGrantee(grantee);
+            request.setName(grantee);
             request.setPolicy(policy);
             request.setDurationSeconds(expireSeconds);
 
@@ -61,7 +61,7 @@ public class StsServiceImpl implements StsService {
 
             final FederationToken federationToken = new FederationToken();
             federationToken.setRequestId(response.getRequestId());
-            federationToken.setFederatedUser(response.getFederatedUser());
+            federationToken.setFederatedUser(response.getFederatedUser().getArn());
             federationToken.setAccessKeyId(response.getCredentials().getAccessKeyId());
             federationToken.setAccessKeySecret(response.getCredentials().getAccessKeySecret());
             federationToken.setSecurityToken(response.getCredentials().getSecurityToken());

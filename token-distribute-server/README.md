@@ -27,8 +27,7 @@ aliyun.oss.bucketName = _YOUR_OSS_BUCKET_NAME_HERE_
 
 ```bash
 cd token-distribute-server
-mvn clean install
-mvn jetty:run
+mvn clean install && mvn jetty:run
 ```
 
 服务在本机上运行，端口`8080`。可以通过。
