@@ -69,6 +69,6 @@ gradle build
 相关资料
 --------------------
 
-- OSS移动SDK文档 **TODO**
+- [OSS移动SDK文档](http://docs.aliyun.com/#/pub/oss/sdk/android-sdk&preface)
 - [OSS Policy文档](http://docs.aliyun.com/#/pub/oss/api-reference/access-control&granting-permissions)
 - [STS文档](http://docs.aliyun.com/#/pub/ram)
