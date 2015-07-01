@@ -66,6 +66,30 @@ gradle build
 
 执行成功后即可在 `app/build/outputs/apk/` 目录下找到打包成功的`apk`文件，安装到手机即可进行测试。
 
+FAQ
+--------------------
+
+### `The difference between the request time and the current time is too large`
+
+`OSS`操作出现上面的错误，是因为手机上的时间 与 `OSS`服务器相差太大。在模拟器上运行比较容易出现这样的问题。
+
+- 如果是真机，设置一下时间。
+- 如果模拟器，可以重启一下，这样就会和开发机的时间一致了。
+
+完整的信息如下。
+
+```bash
+07-01 03:42:15.480  25470-26132/com.example.oss_sdk_demo W/System.err﹕ responseCode: RequestTimeTooSkewed
+07-01 03:42:15.480  25470-26132/com.example.oss_sdk_demo W/System.err﹕ responseMessage: The difference between the request time and the current time is too large.
+07-01 03:42:15.480  25470-26132/com.example.oss_sdk_demo W/System.err﹕ [ 07-01 03:42:15.480 25470:26132 W/System.err ]
+            at com.alibaba.sdk.android.oss.util.OSSToolKit.buildOssException(OSSToolKit.java:578)
+07-01 03:42:15.480  25470-26132/com.example.oss_sdk_demo W/System.err﹕ at com.alibaba.sdk.android.oss.util.OSSToolKit.handleExceptionalResponse(OSSToolKit.java:614)
+07-01 03:42:15.480  25470-26132/com.example.oss_sdk_demo W/System.err﹕ at com.alibaba.sdk.android.oss.storage.OSSBucket.listObjectsInBucket(OSSBucket.java:167)
+07-01 03:42:15.480  25470-26132/com.example.oss_sdk_demo W/System.err﹕ at com.example.oss_sdk_demo.task.ListObjectInBucketTask.doInBackground(ListObjectInBucketTask.java:39)
+07-01 03:42:15.480  25470-26132/com.example.oss_sdk_demo W/System.err﹕ at com.example.oss_sdk_demo.task.ListObjectInBucketTask.doInBackground(ListObjectInBucketTask.java:21)
+...
+```
+
 相关资料
 --------------------
 
