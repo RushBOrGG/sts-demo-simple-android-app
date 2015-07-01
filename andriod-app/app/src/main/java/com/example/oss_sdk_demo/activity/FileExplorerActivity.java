@@ -46,7 +46,7 @@ public class FileExplorerActivity extends Activity implements OnClickListener, O
     private FileListAdapter adapter;
     private String currentPath = "";
     private OSSBucket bucket;
-    final private String DEFAULT_FILE_SAVE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/sts_poc_file/";
+    final private String DEFAULT_FILE_SAVE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/sts_file/";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

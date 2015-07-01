@@ -47,24 +47,24 @@ sampleBucket
 
 执行`server`端的配置并运行以后，
 
-在 `./andriod-app/sts-poc-demo/Androidmanifext.xml` 中：
+在 `./andriod-app/Androidmanifext.xml` 中：
 
 
 ```xml
 <meta-data android:name="ServerAddress" android:value="10.1.29.208:8080"/>
 <meta-data android:name="EndPoint" android:value="oss-cn-beijing.aliyuncs.com"/>
-<meta-data android:name="BucketName" android:value="sts-poc-demo"/>
+<meta-data android:name="BucketName" android:value="sts-android-demo"/>
 ```
 
 把各`android:value`中依次填入`server`端`ip:port/Region域名/你的BucketName`，
 
-然后在`./sts-poc-demo`目录下执行:
+然后在`Android`应用主目录下执行:
 
 ```bash
 gradle build
 ```
 
-执行成功后即可在 `./sts-poc-demo/app/build/outputs/apk/` 目录下找到打包成功的`apk`文件，安装到手机即可进行测试。
+执行成功后即可在 `app/build/outputs/apk/` 目录下找到打包成功的`apk`文件，安装到手机即可进行测试。
 
 相关资料
 --------------------
