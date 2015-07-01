@@ -13,6 +13,6 @@ sts-demo-simple-android-app
 详细信息参见2个工程的文档：
 
 - [服务端应用工程](token-distribute-server)
-- [Android App应用工程](andriod-app/)
+- [Android App应用工程](android-app/)
 
 更多信息如系统架构参见：[OSS Android SDK开发指南](http://docs.aliyun.com/#/pub/oss/sdk/android-sdk&preface)

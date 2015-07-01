@@ -1,4 +1,4 @@
-Andriod App
+Android App
 =====================================
 
 本`App`模拟了一个依赖`OSS`提供的`STS`功能来实现的简单网盘demo，演示了开发者通过`STS`功能的`Polic`y授权机制，为不同的终端用户分配不同权限的`Token`。某个终端开发者持有分配给他的`Token`以后，是不能用这个`Token`逾权访问其他终端用户的资源的。
@@ -47,7 +47,7 @@ sampleBucket
 
 执行`server`端的配置并运行以后，
 
-在 `./andriod-app/Androidmanifext.xml` 中：
+在 `./android-app/Androidmanifext.xml` 中：
 
 
 ```xml
