@@ -16,6 +16,8 @@ import android.widget.Button;
 
 import com.alibaba.sdk.android.oss.OSSServiceProvider;
 import com.alibaba.sdk.android.oss.model.AuthenticationType;
+import com.alibaba.sdk.android.oss.model.OSSFederationToken;
+import com.alibaba.sdk.android.oss.model.StsTokenGetter;
 import com.alibaba.sdk.android.oss.util.OSSLog;
 import com.example.oss_sdk_demo.R;
 import com.example.oss_sdk_demo.model.FederationToken;
@@ -25,7 +27,7 @@ import com.example.oss_sdk_demo.util.AppUtil;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-	private String userId;
+	private String userId = "anonymous";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +45,10 @@ public class MainActivity extends Activity implements OnClickListener {
 		AppUtil.ossService = OSSServiceProvider.getService();
 		AppUtil.ossService.setApplicationContext(this.getApplicationContext());
 		AppUtil.ossService.setGlobalDefaultHostId(AppUtil.endPoint);
+		AppUtil.ossService.setAuthenticationType(AuthenticationType.FEDERATION_TOKEN);
 
 		// 打开调试log
-		OSSLog.enableLog(true);
+		OSSLog.enableLog();
 	}
 
 	// 从Manifest.xml的Meta-data中获得加签服务器地址
@@ -68,17 +71,20 @@ public class MainActivity extends Activity implements OnClickListener {
 		case R.id.button_a_login:
 			Log.d("OSS_", "[onclick] - button_a_login");
 			userId = "userA";
+			((Button) findViewById(R.id.button_b_login)).setEnabled(false);
 			break;
 		case R.id.button_b_login:
 			Log.d("OSS_", "[onclick] - button_b_login");
 			userId = "userB";
+			((Button) findViewById(R.id.button_a_login)).setEnabled(false);
 			break;
 		default:
 			break;
 		}
-		new Thread(new Runnable() {
+
+		AppUtil.ossService.setGlobalDefaultStsTokenGetter(new StsTokenGetter() {
 			@Override
-			public void run() {
+			public OSSFederationToken getFederationToken() {
 				// 为指定的用户拿取服务其授权需求的FederationToken
 				FederationToken token = FederationTokenGetter.getToken(AppUtil.serverAddress, userId);
 				if (token == null) {
@@ -103,13 +109,12 @@ public class MainActivity extends Activity implements OnClickListener {
 							builder.create().show();
 						}
 					});
-					return;
+					return null;
 				}
+				return new OSSFederationToken(token.getAccessKeyId(), token.getAccessKeySecret(), token.getSecurityToken(), token.getExpiration());
 				// 将FederationToken设置到OSSService中
-				AppUtil.ossService.setOrUpdateFederationToken(token.getAccessKeyId(), token.getAccessKeySecret(), token.getSecurityToken());
-				AppUtil.ossService.setAuthenticationType(AuthenticationType.FEDERATION_TOKEN);
 			}
-		}).start();
+		});
 
 		Intent intent = new Intent();
 		intent.setClass(this, FileExplorerActivity.class);
