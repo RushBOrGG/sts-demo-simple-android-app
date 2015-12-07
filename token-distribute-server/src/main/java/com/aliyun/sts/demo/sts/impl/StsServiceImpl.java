@@ -59,26 +59,18 @@ public class StsServiceImpl implements StsService {
     }
 
     @Override
-    public FederationToken getFederationToken(
+    public FederationToken assumeRole(
             final String accessKeyId, final String accessKeySecret,
-            final String grantee, final String policy, final long expireSeconds) {
-        return getFederationToken0(accessKeyId, accessKeySecret, grantee, policy, expireSeconds);
+            final String roleArn, final String policy, final long expireSeconds) {
+        return assumeRole0(accessKeyId, accessKeySecret, roleArn, policy, expireSeconds);
     }
 
-    FederationToken getFederationToken0(
+    FederationToken assumeRole0(
             final String accessKeyId, final String accessKeySecret,
-            final String grantee, final String policy, final long expireSeconds) {
-        // 只有 RAM用户（子账号）才能调用 AssumeRole 接口
-        // 阿里云主账号的AccessKeys不能用于发起AssumeRole请求
-        // 请首先在RAM控制台创建一个RAM用户，并为这个用户创建AccessKeys
-        // 参考：https://docs.aliyun.com/#/pub/ram/ram-user-guide/user_group_management&create_user
+            final String roleArn, final String policy, final long expireSeconds) {
 
         // AssumeRole API 请求参数: RoleArn, RoleSessionName, Polciy, and DurationSeconds
         // 参考： https://docs.aliyun.com/#/pub/ram/sts-api-reference/actions&assume_role
-
-        // RoleArn 需要在 RAM 控制台上获取
-        // 参考: https://docs.aliyun.com/#/pub/ram/ram-user-guide/role&user-role
-        String roleArn = "acs:ram::1072607847863888:role/xyc-001";
 
         // RoleSessionName 是临时Token的会话名称，自己指定用于标识你的用户，主要用于审计，或者用于区分Token颁发给谁
         // 但是注意RoleSessionName的长度和规则，不要有空格，只能有'-' '_' 字母和数字等字符

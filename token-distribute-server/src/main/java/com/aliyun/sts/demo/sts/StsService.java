@@ -21,5 +21,5 @@ public interface StsService {
      * @return 输入要求的STS Token。
      * @throws StsException 操作出错
      */
-    FederationToken getFederationToken(String accessKeyId, String accessKeySecret, String grantee, String policy, long expireSeconds);
+    FederationToken assumeRole(String accessKeyId, String accessKeySecret, String grantee, String policy, long expireSeconds);
 }

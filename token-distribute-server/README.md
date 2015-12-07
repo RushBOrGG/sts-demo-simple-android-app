@@ -15,6 +15,7 @@ aliyun.accessKeyId = _YOUR_ACCESS_ID_HERE_
 aliyun.accessKeySecret = _YOUR_ACCESS_SECRET_HERE_
 aliyun.userId = _YOUR_USER_ID_HERE_
 aliyun.oss.bucketName = _YOUR_OSS_BUCKET_NAME_HERE_
+aliyun.oss.roleArn = _YOUR_OSS_ROLE_ARN_HERE_
 ```
 
 代码工程中已经提供了配置文件`aliyun-service-config.properties.template`，重命名成`aliyun-service-config.properties`，填写上面值。
