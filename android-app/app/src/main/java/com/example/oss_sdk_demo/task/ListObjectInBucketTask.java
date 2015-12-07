@@ -3,22 +3,22 @@ package com.example.oss_sdk_demo.task;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.alibaba.sdk.android.oss.model.ListObjectOption;
-import com.alibaba.sdk.android.oss.model.ListObjectResult;
-import com.alibaba.sdk.android.oss.model.ListObjectResult.ObjectInfo;
-import com.alibaba.sdk.android.oss.model.OSSException;
-import com.alibaba.sdk.android.oss.storage.OSSBucket;
-import com.alibaba.sdk.android.oss.util.OSSLog;
+import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
+import com.alibaba.sdk.android.oss.model.ListObjectsResult;
+import com.alibaba.sdk.android.oss.model.OSSObjectSummary;
 import com.example.oss_sdk_demo.activity.FileExplorerActivity;
 import com.example.oss_sdk_demo.adapter.FileListAdapter;
 import com.example.oss_sdk_demo.model.FileObject;
 import com.example.oss_sdk_demo.model.FileObject.FileType;
+import com.example.oss_sdk_demo.util.AppUtil;
 
-public class ListObjectInBucketTask extends AsyncTask<Object, Integer, ListObjectResult> {
+public class ListObjectInBucketTask extends AsyncTask<Object, Integer, ListObjectsResult> {
 
 	private FileListAdapter adapter;
 	private FileExplorerActivity inWhich;
@@ -31,20 +31,21 @@ public class ListObjectInBucketTask extends AsyncTask<Object, Integer, ListObjec
 	}
 
 	@Override
-	protected ListObjectResult doInBackground(Object... params) {
-		OSSBucket bucket = (OSSBucket) params[0];
-		ListObjectOption opt = (ListObjectOption) params[1];
-		this.queryPath = opt.getPrefix();
+	protected ListObjectsResult doInBackground(Object... params) {
+		ListObjectsRequest listObject = (ListObjectsRequest) params[0];
+		this.queryPath = listObject.getPrefix();
 		try {
-			return bucket.listObjectsInBucket(opt);
-		} catch (OSSException e) {
+			return AppUtil.oss.listObjects(listObject);
+		} catch (ClientException e) {
+			e.printStackTrace();
+		} catch (ServiceException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 
 	@Override
-	protected void onPostExecute(ListObjectResult result) {
+	protected void onPostExecute(ListObjectsResult result) {
 		if (result == null) {
 			Toast.makeText(inWhich.getApplicationContext(), "操作失败！", Toast.LENGTH_SHORT).show();
 			return ;
@@ -52,24 +53,22 @@ public class ListObjectInBucketTask extends AsyncTask<Object, Integer, ListObjec
 		this.inWhich.setCurrentPath(queryPath);
 		List<FileObject> newList = new ArrayList<FileObject>();
 		newList.add(new FileObject("..", FileType.FOLDER));
-		for (String dirName : result.getCommonPrefixList()) {
+		for (String dirName : result.getCommonPrefixes()) {
 		    OSSLog.logD("dirName: " + dirName);
 		    dirName = dirName.substring(0, dirName.length() - 1);
 		    dirName = dirName.substring(dirName.lastIndexOf("/") + 1);
 		    dirName += "/";
 		    newList.add(new FileObject(dirName, FileType.FOLDER));
 		}
-		for (ObjectInfo entry : result.getObjectInfoList()) {
-			if (entry.getObjectKey().endsWith("/") && !entry.getObjectKey().equals(result.getPrefix())) {
-				newList.add(new FileObject(entry.getObjectKey(), FileType.FOLDER));
+		for (OSSObjectSummary object : result.getObjectSummaries()) {
+			if (object.getKey().endsWith("/") && !object.getKey().equals(result.getPrefix())) {
+				newList.add(new FileObject(object.getKey(), FileType.FOLDER));
 			}
 		}
-		for (ObjectInfo entry : result.getObjectInfoList()) {
-		    OSSLog.logD(entry.getObjectKey());
-			if (!entry.getObjectKey().endsWith("/")) {
-				newList.add(new FileObject(
-				        entry.getObjectKey().substring(entry.getObjectKey().lastIndexOf("/") + 1),
-				        FileType.FILE));
+		for (OSSObjectSummary object : result.getObjectSummaries()) {
+			OSSLog.logD(object.getKey());
+			if (!object.getKey().endsWith("/")) {
+				newList.add(new FileObject(object.getKey().substring(object.getKey().lastIndexOf("/") + 1), FileType.FILE));
 			}
 		}
 		adapter.moveToNewDataSource(newList);

@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.alibaba.sdk.android.oss.util.OSSLog;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.example.oss_sdk_demo.R;
 import com.example.oss_sdk_demo.model.FileObject;
 import com.example.oss_sdk_demo.model.FileObject.FileType;

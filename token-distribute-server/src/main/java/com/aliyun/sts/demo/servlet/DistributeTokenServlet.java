@@ -44,16 +44,26 @@ public class DistributeTokenServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final String userName = req.getParameter("user-name");
+
+        // 只有 RAM用户（子账号）才能调用 AssumeRole 接口
+        // 阿里云主账号的AccessKeys不能用于发起AssumeRole请求
+        // 请首先在RAM控制台创建一个RAM用户，并为这个用户创建AccessKeys
+        // 参考：https://docs.aliyun.com/#/pub/ram/ram-user-guide/user_group_management&create_user
         final String accessKeyId = aliyunServiceConfig.getProperty("aliyun.accessKeyId");
         final String accessKeySecret = aliyunServiceConfig.getProperty("aliyun.accessKeySecret");
+
         final String userId = aliyunServiceConfig.getProperty("aliyun.userId");
         final String bucketName = aliyunServiceConfig.getProperty("aliyun.oss.bucketName");
+
+        // RoleArn 需要在 RAM 控制台上获取
+        // 参考: https://docs.aliyun.com/#/pub/ram/ram-user-guide/role&user-role
+        final String roleArn = aliyunServiceConfig.getProperty("aliyun.oss.roleArn");
         final int ONE_HOUR = 60 * 60;
 
-        final FederationToken federationToken = stsService.getFederationToken(
+        final FederationToken federationToken = stsService.assumeRole(
                 accessKeyId,
                 accessKeySecret,
-                "anyone", getPolicy(userId, userName, bucketName), ONE_HOUR
+                roleArn, getPolicy(userName, bucketName), ONE_HOUR
         );
 
         resp.setHeader("Content-type", "application/json");
@@ -61,7 +71,7 @@ public class DistributeTokenServlet extends HttpServlet {
         writer.write(JSON.toJSONString(federationToken));
     }
 
-    String getPolicy(String userId, String userName, String bucketName) {
+    String getPolicy(String userName, String bucketName) {
         return String.format(
                 "{\n" +
                 "    \"Version\": \"1\", \n" +

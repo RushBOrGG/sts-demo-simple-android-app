@@ -17,7 +17,7 @@ public class FederationToken implements Serializable {
     private String accessKeyId;
     private String accessKeySecret;
     private String securityToken;
-    private Date expiration;
+    private String expiration;
 
     public String getRequestId() {
         return requestId;
@@ -62,11 +62,11 @@ public class FederationToken implements Serializable {
     /**
      * Token的过期时间。
      */
-    public Date getExpiration() {
+    public String getExpiration() {
         return expiration;
     }
 
-    public void setExpiration(Date expiration) {
+    public void setExpiration(String expiration) {
         this.expiration = expiration;
     }
 
