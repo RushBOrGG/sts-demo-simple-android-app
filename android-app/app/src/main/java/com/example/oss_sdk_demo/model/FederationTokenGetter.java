@@ -11,8 +11,6 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.pm.ApplicationInfo;
-
 
 
 
@@ -51,7 +49,7 @@ public class FederationTokenGetter {
             String ak = jsonObject.getString("accessKeyId");
             String sk = jsonObject.getString("accessKeySecret");
             String securityToken = jsonObject.getString("securityToken");
-            long expireTime = jsonObject.getLong("expiration");
+            String expireTime = jsonObject.getString("expiration");
             return new FederationToken(ak, sk, securityToken, expireTime);
         } catch (JSONException e) {
             e.printStackTrace();

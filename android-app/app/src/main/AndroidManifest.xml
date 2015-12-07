@@ -14,9 +14,9 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
 
-        <meta-data android:name="ServerAddress" android:value="10.1.29.208:8080"/>
+        <meta-data android:name="ServerAddress" android:value="30.9.173.145:8080"/>
         <meta-data android:name="EndPoint" android:value="oss-cn-beijing.aliyuncs.com"/>
-        <meta-data android:name="BucketName" android:value="sts-android-demo"/>
+        <meta-data android:name="BucketName" android:value="sts-poc-demo"/>
 
         <activity
             android:name="com.example.oss_sdk_demo.activity.MainActivity"

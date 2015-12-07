@@ -11,9 +11,9 @@ public class FederationToken {
     private String accessKeyId;
     private String accessKeySecret;
     private String securityToken;
-    private long expiration;
+    private String expiration;
 
-    public FederationToken(String ak, String sk, String sToken, long expiredTime) {
+    public FederationToken(String ak, String sk, String sToken, String expiredTime) {
         this.accessKeyId = ak;
         this.accessKeySecret = sk;
         this.securityToken = sToken;
@@ -44,11 +44,11 @@ public class FederationToken {
         this.securityToken = securityToken;
     }
 
-    public long getExpiration() {
+    public String getExpiration() {
         return expiration;
     }
 
-    public void setExpiration(long expiration) {
+    public void setExpiration(String expiration) {
         this.expiration = expiration;
     }
 }

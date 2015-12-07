@@ -19,8 +19,14 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+
+    android {
+        lintOptions {
+            abortOnError false
+        }
+    }
 }
 
 dependencies {
-    compile files('libs/oss-android-sdk-1.2.0.jar')
+    compile fileTree(dir: 'libs', include: ['*.jar'])
 }

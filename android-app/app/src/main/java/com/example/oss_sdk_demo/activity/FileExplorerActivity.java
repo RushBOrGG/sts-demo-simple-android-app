@@ -1,10 +1,5 @@
 package com.example.oss_sdk_demo.activity;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -16,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -25,13 +19,14 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.alibaba.sdk.android.oss.callback.GetFileCallback;
-import com.alibaba.sdk.android.oss.callback.SaveCallback;
-import com.alibaba.sdk.android.oss.model.ListObjectOption;
-import com.alibaba.sdk.android.oss.model.OSSException;
-import com.alibaba.sdk.android.oss.storage.OSSBucket;
-import com.alibaba.sdk.android.oss.storage.OSSFile;
-import com.alibaba.sdk.android.oss.util.OSSLog;
+import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.example.oss_sdk_demo.R;
 import com.example.oss_sdk_demo.adapter.FileListAdapter;
 import com.example.oss_sdk_demo.model.FileObject;
@@ -39,21 +34,22 @@ import com.example.oss_sdk_demo.model.FileObject.FileType;
 import com.example.oss_sdk_demo.task.ListObjectInBucketTask;
 import com.example.oss_sdk_demo.util.AppUtil;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 public class FileExplorerActivity extends Activity implements OnClickListener, OnItemClickListener {
 
     private ListView fileListView;
     private Button uploadBtn;
     private FileListAdapter adapter;
     private String currentPath = "";
-    private OSSBucket bucket;
     final private String DEFAULT_FILE_SAVE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/sts_file/";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.file_explorer_activity);
-
-        bucket = AppUtil.ossService.getOssBucket(AppUtil.bucketName);
 
         File file = new File(DEFAULT_FILE_SAVE_PATH);
         if (!file.exists()) {
@@ -107,25 +103,24 @@ public class FileExplorerActivity extends Activity implements OnClickListener, O
     }
 
     public void downloadFile(String objectKey) {
-        OSSFile ossFile = AppUtil.ossService.getOssFile(bucket, objectKey);
-        String filePath = DEFAULT_FILE_SAVE_PATH + objectKey.substring(objectKey.lastIndexOf("/") + 1);
-        ossFile.downloadToInBackground(filePath, new GetFileCallback() {
+        final String filePath = DEFAULT_FILE_SAVE_PATH + objectKey.substring(objectKey.lastIndexOf("/") + 1);
+        GetObjectRequest get = new GetObjectRequest(AppUtil.bucketName, objectKey);
+        AppUtil.oss.asyncGetObejct(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
-            public void onProgress(String arg0, int arg1, int arg2) {
-            }
-            @Override
-            public void onFailure(String arg0, OSSException arg1) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(FileExplorerActivity.this.getApplicationContext(), "下载失败！", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-            @Override
-            public void onSuccess(String arg0, String arg1) {
+            public void onSuccess(GetObjectRequest getObjectRequest, GetObjectResult getObjectResult) {
+
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(FileExplorerActivity.this.getApplicationContext(), "下载成功！", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(GetObjectRequest getObjectRequest, ClientException e, ServiceException e1) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(FileExplorerActivity.this.getApplicationContext(), "下载失败！", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -143,36 +138,27 @@ public class FileExplorerActivity extends Activity implements OnClickListener, O
             final String path = getRealPathFromURI(this.getApplicationContext(), uri);
             final String fileName = path.substring(path.lastIndexOf("/") + 1);
             final String objectKey = currentPath + fileName;
-            OSSFile ossFile = AppUtil.ossService.getOssFile(bucket, objectKey);
-            try {
-                ossFile.setUploadFilePath(path, "file");
-                ossFile.uploadInBackground(new SaveCallback() {
-                    @Override
-                    public void onProgress(String arg0, int arg1, int arg2) {
-                    }
-                    
-                    @Override
-                    public void onFailure(String objectKey, OSSException ossException) {
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(FileExplorerActivity.this.getApplicationContext(), "上传失败！", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                    
-                    @Override
-                    public void onSuccess(String objectKey) {
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                adapter.getDataSource().add(new FileObject(fileName, FileType.FILE));
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
-                    }
-                });
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            PutObjectRequest put = new PutObjectRequest(AppUtil.bucketName, objectKey, path);
+            AppUtil.oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
+                @Override
+                public void onSuccess(PutObjectRequest putObjectRequest, PutObjectResult putObjectResult) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            adapter.getDataSource().add(new FileObject(fileName, FileType.FILE));
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(PutObjectRequest putObjectRequest, ClientException e, ServiceException e1) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(FileExplorerActivity.this.getApplicationContext(), "上传失败！", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
         }
         super.onActivityResult(requestCode, resultCode, data);
     };
@@ -210,11 +196,11 @@ public class FileExplorerActivity extends Activity implements OnClickListener, O
 		        adapter.notifyDataSetChanged();
 		    } else {
                 // 发起网络请求，读取下一级文件列表
-		       	ListObjectOption loo = new ListObjectOption();
-		       	loo.setDelimiter("/");
-		       	loo.setPrefix(currentPath + fo.getFileName());
-		       	loo.setMaxKeys(1000);
-		       	new ListObjectInBucketTask(adapter, this).execute(bucket, loo);
+                ListObjectsRequest listObject = new ListObjectsRequest(AppUtil.bucketName);
+                listObject.setDelimiter("/");
+                listObject.setPrefix(currentPath + fo.getFileName());
+                listObject.setMaxKeys(1000);
+		       	new ListObjectInBucketTask(adapter, this).execute(listObject);
 		    }
 		} else if (fo.getFileType() == FileType.FILE) {
 		    final String fileName = currentPath + fo.getFileName();

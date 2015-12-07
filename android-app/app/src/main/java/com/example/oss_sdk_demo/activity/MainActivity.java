@@ -14,11 +14,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-import com.alibaba.sdk.android.oss.OSSServiceProvider;
-import com.alibaba.sdk.android.oss.model.AuthenticationType;
-import com.alibaba.sdk.android.oss.model.OSSFederationToken;
-import com.alibaba.sdk.android.oss.model.StsTokenGetter;
-import com.alibaba.sdk.android.oss.util.OSSLog;
+import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.example.oss_sdk_demo.R;
 import com.example.oss_sdk_demo.model.FederationToken;
 import com.example.oss_sdk_demo.model.FederationTokenGetter;
@@ -42,10 +41,38 @@ public class MainActivity extends Activity implements OnClickListener {
 		buttonB.setOnClickListener(this);
 
 		// 初始化OSSService
-		AppUtil.ossService = OSSServiceProvider.getService();
-		AppUtil.ossService.setApplicationContext(this.getApplicationContext());
-		AppUtil.ossService.setGlobalDefaultHostId(AppUtil.endPoint);
-		AppUtil.ossService.setAuthenticationType(AuthenticationType.FEDERATION_TOKEN);
+		AppUtil.oss = new OSSClient(getApplicationContext(), AppUtil.endPoint, new OSSFederationCredentialProvider() {
+			@Override
+			public OSSFederationToken getFederationToken() {
+				// 为指定的用户拿取服务其授权需求的FederationToken
+				FederationToken token = FederationTokenGetter.getToken(AppUtil.serverAddress, userId);
+				if (token == null) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+							builder.setMessage("获取FederationToken失败!!!");
+							builder.setTitle("警告");
+							builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									dialog.dismiss();
+								}
+							});
+							builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									dialog.dismiss();
+								}
+							});
+							builder.create().show();
+						}
+					});
+					return null;
+				}
+				return new OSSFederationToken(token.getAccessKeyId(), token.getAccessKeySecret(), token.getSecurityToken(), token.getExpiration());
+			}
+		});
 
 		// 打开调试log
 		OSSLog.enableLog();
@@ -81,40 +108,6 @@ public class MainActivity extends Activity implements OnClickListener {
 		default:
 			break;
 		}
-
-		AppUtil.ossService.setGlobalDefaultStsTokenGetter(new StsTokenGetter() {
-			@Override
-			public OSSFederationToken getFederationToken() {
-				// 为指定的用户拿取服务其授权需求的FederationToken
-				FederationToken token = FederationTokenGetter.getToken(AppUtil.serverAddress, userId);
-				if (token == null) {
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-							builder.setMessage("获取FederationToken失败!!!");
-							builder.setTitle("警告");
-							builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.dismiss();
-								}
-							});
-							builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									dialog.dismiss();
-								}
-							});
-							builder.create().show();
-						}
-					});
-					return null;
-				}
-				return new OSSFederationToken(token.getAccessKeyId(), token.getAccessKeySecret(), token.getSecurityToken(), token.getExpiration());
-				// 将FederationToken设置到OSSService中
-			}
-		});
 
 		Intent intent = new Intent();
 		intent.setClass(this, FileExplorerActivity.class);
